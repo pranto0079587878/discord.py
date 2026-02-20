@@ -3,10 +3,12 @@ from discord.ext import commands
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
+import threading
+from flask import Flask
 
 load_dotenv()
 
-TOKEN = os.getenv("TOKEN")  # Render-এ variable দিয়ে নেবে, এখানে hardcode করো না!
+TOKEN = os.getenv("TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -54,5 +56,19 @@ async def on_message(message):
         return
 
     await bot.process_commands(message)
+
+# Dummy Flask web server to keep Render happy
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is alive!"
+
+def run_app():
+    port = int(os.environ.get('PORT', 8080))  # Render sets PORT
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+
+# Start Flask in a thread
+threading.Thread(target=run_app).start()
 
 bot.run(TOKEN)
