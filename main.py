@@ -6,9 +6,13 @@ from dotenv import load_dotenv
 import threading
 from flask import Flask
 
-load_dotenv()
-
 TOKEN = os.getenv("TOKEN")
+
+if not TOKEN:
+    print("ERROR: TOKEN environment variable is missing!")
+    exit(1)
+
+bot.run(TOKEN)
 
 intents = discord.Intents.default()
 intents.message_content = True
